@@ -14,6 +14,9 @@ const {
 const stores = [{
     name: 'esselunga',
     engine: require('./esselunga')
+}, {
+    name: 'bennetdrive',
+    engine: require('./bennetdrive')
 }];
 // TODO: aggiungere nuovi store
 
@@ -112,7 +115,8 @@ let currentWin;
                     // attenzione che l'intervallo di refresh è passato in secondi
                     Runner.start(stores.filter(store => config.get(`${store.name}_enabled`))
                         .map(store => Object.assign(store, {
-                            run: async () => store.engine.run(config.get(`${store.name}_username`), config.get(`${store.name}_password`))
+                            // recupero tutti i parametri che hanno come prefisso il nome dello store e li passo a "run"
+                            run: async () => store.engine.run(config.getWithPrefix(store.name + '_', true))
                         })), config.get('refresh') * 1000);
                 }
 

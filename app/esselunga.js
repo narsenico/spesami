@@ -177,7 +177,10 @@ async function status(options, cookie) {
     });
 }
 
-async function run(username, password) {
+async function run({
+    username,
+    password
+}) {
     const cookie = await login(Object.assign({}, DEFAULT_OPTIONS), username, password);
     const res = await status(Object.assign({}, STATUS_OPTIONS), cookie);
     console.log('[esselunga]', res);

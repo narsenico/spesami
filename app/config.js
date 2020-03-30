@@ -41,6 +41,15 @@ class Config {
         }
     }
 
+    getWithPrefix(prefix, removePrefix = false) {
+        return Object.keys(this.entries).reduce((m, key) => {
+            if (key.startsWith(prefix)) {
+                m[removePrefix ? key.substr(prefix.length) : key] = this.entries[key];
+            }
+            return m;
+        }, {});
+    }
+
     set(key, value) {
         if (typeof key === 'object' && value === undefined) {
             Object.assign(this.entries, key);

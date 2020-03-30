@@ -50,6 +50,29 @@
             </ul>
         </section>
 
+        <section data-store="bennetdrive">
+            <h2>BENNETDRIVE</h2>
+            <ul>
+                <li>
+                    <label for="bennetdrive_enabled">Abilitato</label>
+                    <input type="checkbox" name="bennetdrive_enabled" id="bennetdrive_enabled">
+                </li>
+                <li>
+                    <label for="bennetdrive_username">Indirizzo e-mail</label>
+                    <input type="text" name="bennetdrive_username" id="bennetdrive_username">
+                </li>
+                <li>
+                    <label for="bennetdrive_password">Password</label>
+                    <input type="password" name="bennetdrive_password" id="bennetdrive_password">
+                </li>
+                <li>
+                    <label for="bennetdrive_city">Citt&agrave;</label>
+                    <input type="city" name="bennetdrive_city" id="bennetdrive_city">
+                </li>
+                <li class="response"></li>
+            </ul>
+        </section>
+
         <input type="submit" value="Avvia" name="toggle">
     </form>
 
@@ -67,6 +90,10 @@
                 esselunga_enabled: form.esselunga_enabled.checked,
                 esselunga_username: form.esselunga_username.value,
                 esselunga_password: form.esselunga_password.value,
+                bennetdrive_enabled: form.bennetdrive_enabled.checked,
+                bennetdrive_username: form.bennetdrive_username.value,
+                bennetdrive_password: form.bennetdrive_password.value,
+                bennetdrive_city: form.bennetdrive_city.value
             }
         }
 
@@ -77,6 +104,10 @@
                 frmSettings.esselunga_enabled.checked = !!config.esselunga_enabled;
                 frmSettings.esselunga_username.value = config.esselunga_username || '';
                 frmSettings.esselunga_password.value = config.esselunga_password || '';
+                frmSettings.bennetdrive_enabled.checked = !!config.bennetdrive_enabled;
+                frmSettings.bennetdrive_username.value = config.bennetdrive_username || '';
+                frmSettings.bennetdrive_password.value = config.bennetdrive_password || '';
+                frmSettings.bennetdrive_city.value = config.bennetdrive_city || '';
 
                 // TODO: altre impostazioni
 
