@@ -1,0 +1,7 @@
+node_modules
+spesami-*
+*.sublime*
+*.sh
+.DS_Store
+test
+tests_output

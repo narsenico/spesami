@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>spesami</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet">
+    <style>
+        html {
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        section {
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>spesami</h1>
+
+    <form id="frmSettings">
+        <section>
+            <h2>Impostazioni</h2>
+            <ul>
+                <li>
+                    <label for="refresh">Refresh</label>
+                    <input type="number" min="1" name="refresh" id="refresh"> sec.
+                </li>
+            </ul>
+        </section>
+
+        <section data-store="esselunga">
+            <h2>ESSELUNGA</h2>
+            <ul>
+                <li>
+                    <label for="esselunga_enabled">Abilitato</label>
+                    <input type="checkbox" name="esselunga_enabled" id="esselunga_enabled">
+                </li>
+                <li>
+                    <label for="esselunga_username">Indirizzo e-mail</label>
+                    <input type="text" name="esselunga_username" id="esselunga_username">
+                </li>
+                <li>
+                    <label for="esselunga_password">Password</label>
+                    <input type="password" name="esselunga_password" id="esselunga_password">
+                </li>
+                <li class="response"></li>
+            </ul>
+        </section>
+
+        <input type="submit" value="Avvia" name="toggle">
+    </form>
+
+    <pre id="debugBox"></pre>
+
+    <script>
+        const {
+            ipcRenderer
+        } = require('electron');
+        const moment = require('moment');
+
+        function makeConfig(form) {
+            return {
+                refresh: form.refresh.value,
+                esselunga_enabled: form.esselunga_enabled.checked,
+                esselunga_username: form.esselunga_username.value,
+                esselunga_password: form.esselunga_password.value,
+            }
+        }
+
+        window.onload = () => {
+            ipcRenderer.on('get-config-reply', (event, config) => {
+                const frmSettings = document.querySelector('#frmSettings');
+                frmSettings.refresh.value = config.refresh || 60 * 30;
+                frmSettings.esselunga_enabled.checked = !!config.esselunga_enabled;
+                frmSettings.esselunga_username.value = config.esselunga_username || '';
+                frmSettings.esselunga_password.value = config.esselunga_password || '';
+
+                // TODO: altre impostazioni
+
+                // salvataggio delle configurazioni
+                frmSettings.onsubmit = e => {
+                    e.stopPropagation();
+                    e.preventDefault();
+
+                    const config = makeConfig(frmSettings);
+                    console.log('set', config);
+                    ipcRenderer.send('set-config', config);
+                }
+
+                if (config.debug) {
+                    document.querySelector('#debugBox').innerHTML = JSON.stringify(config, null, ' ');
+                }
+            });
+
+            ipcRenderer.on('set-config-reply', (event, resp) => {
+                if (resp === 'error') {
+                    alert('An error occured: cannot save data.')
+                } else if (resp) {
+                    console.log('running')
+                    frmSettings.elements['toggle'].value = 'Stop';
+                } else {
+                    console.log('stopped')
+                    frmSettings.elements['toggle'].value = 'Avvia';
+                }
+            });
+
+            ipcRenderer.on('runner-change-status', (event, resp) => {
+                console.log(resp);
+
+                const el = document.querySelector(`section[data-store="${resp.source}"] .response`);
+                if (resp.status == 'calling') {
+                    el.innerHTML = `[${moment(resp.time).format('HH:mm:ss')}] STO CHIAMANDO...`;
+                } else if (resp.status == 'done') {
+                    if (resp.result.available) {
+                        el.innerHTML = `[${moment(resp.time).format('HH:mm:ss')}] EUREKA! DISPONIBILE: ${resp.result.date}`;
+                    } else {
+                        el.innerHTML = `[${moment(resp.time).format('HH:mm:ss')}] NON CI SONO DATE DISPONIBILI, MI
+                        SPIACE.`;
+                    }
+                } else if (resp.status == 'error') {
+                    el.innerHTML = `[${moment(resp.time).format('HH:mm:ss')}] ${resp.error}`;
+                }
+            });
+
+            ipcRenderer.send('get-config', '*')
+        };
+    </script>
+</body>
+
+</html>
